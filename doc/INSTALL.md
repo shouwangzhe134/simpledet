@@ -130,8 +130,13 @@ sudo apt-get install -y build-essential git
 sudo apt-get install -y libopenblas-dev
 ```
 
+conda create -n simpledet python=3.7
+conda activate simpledet
+pip install 'matplotlib<3.1' opencv-python pytz
+pip install 'git+https://github.com/RogerChern/mxnext#egg=mxnext'
+
 ```bash
-git clone --recursive https://github.com/apache/incubator-mxnet /tmp/mxnet && \
+git clone --recursive https://github.com/apache/incubator-mxnet /tmp/mxnet
 cd mxnet
 git checkout 1.6.0
 git submodule init
@@ -158,3 +163,10 @@ cd python && \
 python setup.py install && \
 rm -rf /tmp/mxnet /tmp/simpledet /tmp/cocoapi
 ```
+
+git clone https://github.com/tusimple/simpledet
+cd simpledet
+make
+
+mkdir -p experiments/faster_r50v1_fpn_1x
+python detection_infer_speed.py --config config/faster_r50v1_fpn_1x.py --shape 800 1333
