@@ -108,3 +108,53 @@ cd python && \
 python3 setup.py install && \
 rm -rf /tmp/mxnet /tmp/simpledet /tmp/cocoapi
 ```
+
+## Setup from Scratch by wangdong
+#### System Requirements
+- Ubuntu 16.04
+- Python == 3.7
+
+#### Install CUDA, cuDNN and NCCL
+
+#### Install cocotools
+```bash
+# Install a patched cocotools for python3
+pip install 'git+https://github.com/RogerChern/cocoapi.git#subdirectory=PythonAPI'
+```
+
+#### Install MXNet
+```bash
+# Install dependency
+sudo apt-get update
+sudo apt-get install -y build-essential git
+sudo apt-get install -y libopenblas-dev
+```
+
+```bash
+git clone --recursive https://github.com/apache/incubator-mxnet /tmp/mxnet && \
+cd mxnet
+git checkout 1.6.0
+git submodule init
+git submodule update
+git clone https://github.com/Tusimple/simpledet /tmp/simpledet && \
+git clone https://github.com/RogerChern/cocoapi /tmp/cocoapi && \
+cp -r /tmp/simpledet/operator_cxx/* /tmp/mxnet/src/operator && \
+mkdir -p /tmp/mxnet/src/coco_api && \
+cp -r /tmp/cocoapi/common /tmp/mxnet/src/coco_api && \
+cd /tmp/mxnet && \
+echo "USE_SIGNAL_HANDLER = 1" >> ./config.mk && \
+echo "USE_OPENCV = 0" >> ./config.mk && \
+echo "USE_MKLDNN = 0" >> ./config.mk && \
+echo "USE_BLAS = openblas" >> ./config.mk && \
+echo "USE_CUDA = 1" >> ./config.mk && \
+echo "USE_CUDA_PATH = /usr/local/cuda" >> ./config.mk && \
+echo "USE_CUDNN = 1" >> ./config.mk && \
+echo "USE_NCCL = 1" >> ./config.mk && \
+echo "USE_DIST_KVSTORE = 1" >> ./config.mk && \
+echo "CUDA_ARCH = -gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70" >> ./config.mk && \
+rm /tmp/mxnet/src/operator/nn/group_norm* && \
+make -j$((`nproc`-1)) && \
+cd python && \
+python setup.py install && \
+rm -rf /tmp/mxnet /tmp/simpledet /tmp/cocoapi
+```
